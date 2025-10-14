@@ -2,6 +2,7 @@
 
 | Topic | Subject | OCW | 
 | :--- | :--- | :--- |
+| C Language | Syntax and techniques of C language | [MIT 6.087](https://ocw.mit.edu/courses/6-087-practical-programming-in-c-january-iap-2010/) |
 | Data Structure & Algorithms | Basis of software engineer | [MIT 6.006](https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-spring-2020/) |
 | Operating System | The core concepts of operating systems and implementation of an OS | [MIT 6.1810](https://pdos.csail.mit.edu/6.1810/2022/overview.html) |
 | Linux | Usage of Linux, C language, system calls | - |
