@@ -107,5 +107,147 @@ Key point:
     - `enum BOLL{NO,YES}`: NO=0, YES=1.
     - `enum COLOR{R=1,G,B,Y=10}`: R=1, G=2, B=3, Y=10.
 
+**Table of operators' precedence**
+
+| Precedence Group | Operator | Description | Associativity |
+| :---: | :--- | :--- | :---: |
+| 1 (Highest) | () [] . -> | Parentheses, Array Subscript, Member Access (Direct/Pointer) | Left-to-Right |
+| 2 | ! ~ ++ -- + - (Unary) * (Dereference) & (Address of) sizeof (type) (Cast) | Unary Operators, Type Cast, sizeof | Right-to-Left |
+| 3 | * / % | Multiplication, Division, Modulo (Arithmetic) | Left-to-Right |
+| 4 | + - (Binary) | Addition, Subtraction (Arithmetic) | Left-to-Right |
+| 5 | << >> | Bitwise Shift (Left/Right) | Left-to-Right |
+| 6 | < <= > >= | Relational (Inequality) Operators | Left-to-Right |
+| 7 | == != | Relational (Equality) Operators | Left-to-Right |
+| 8 | & | Bitwise AND | Left-to-Right |
+| 9 | ^ | Bitwise XOR | Left-to-Right |
+| 10 | | | Bitwise OR | Left-to-Right |
+| 11 | && | Logical AND | Left-to-Right |
+| 12 | || | Logical OR | Left-to-Right |
+| 13 | ?: | Conditional Operator (Ternary) | Right-to-Left |
+| 14 | = += -= *= /= %= <<= >>= &= ^= |= | Assignment Operators (Simple and Compound) | Right-to-Left |
+| 15 (Lowest) | , | Comma Operator | Left-to-Right |
+
 # Lecture 3
 
+## The *switch* statement
+
+**Independent Case**
+
+```C
+switch ( ch ) {
+  case 'Y': /* ch == 'Y' */
+    /* do something */
+    break ;
+  case 'N' : /* ch == 'N' */
+    /* do something else */
+    break ;
+  default : /* otherwise */
+    /* do a third thing */
+    break ;
+}
+```
+
+**Falls Through Case**
+
+When match found, starts executing inner code until `break;` reached. Execution "falls through" if `break;` not included.
+
+```C
+switch ( ch ) {
+  case 'Y':
+    /* do something if ch == 'Y' */
+  case 'N' :
+    /* do something if ch == 'Y' or ch == 'N' */
+    break ;
+}
+```
+
+## The do-while loop
+
+Differs from `while` loop – condition evaluated after each iteration.
+
+```C
+char c;
+do{
+  /* loop body */
+  /* some processing */
+} while (c == 'y'/* condition */); //<--the end semicolon is essential 
+```
+
+## The *extern* keyword
+
+The `extern` keyword informs compiler that variable defined somewhere else enables access/modifying of global variable from other source files.
+
+The `extern` is writed in a header file.
+
+```C
+// function.h
+extern int global_var;
+void some_fn(void);
+```
+
+The global variable is actually define in corresponding source file of the header file.
+
+```C
+// function.c
+int global_var = 1;
+void some_fn(void){
+  ++global_var;
+}
+```
+
+The global variable can be modify or access in other source file that include the header file.
+
+```C
+// main.c
+#include "function.h"
+#include <stdio.h>
+
+int main(){
+  puts(global_var); // output>> 1
+  some_fn();
+  puts(global_var); // output>> 2
+  global_var += 3;
+  puts(global_var); // output>> 5
+  return 0;
+}
+```
+
+When compiler compile `main.c`, it needs a external reference of `global_var`.
+Linker will let all references of `global_var` in `main.o` (comes from `main.c`) point to the only memory address which is distributed by `function.o` (comes from `function.c`).
+
+## Compile with modules
+
+If there are multiple modules is included, the source files need to be complie, too.
+The following command is used to compile multiple source files:
+
+```bash
+gcc -g -O0 -Wall main.c <source-1>.c <source-2>.c -o output.o
+```
+
+## The *static* keyword
+
+`static` keyword has two meanings, depending on where the static variable is declared:
+  - Outside a function: `static` variables or functions can only be visible within that file, not globally (cannot be `extern`'ed).
+  - Inside a function: The `static` variables are still local to the function. However, they are initialized only during program initialization.
+
+```C
+// function.c
+void some_fn(void){
+  static int var = 10;
+  ++var;
+}
+```
+
+The expression `static int var = 10;` may only be declared once when the program starts. After program initialization, the expression will `static int var = 10;` be ignored.
+
+## The *register* keyword
+
+Register is a kind of storage unit inside the CPU. The capacity of register is much smaller than RAM. Instead, it is extremely fast. When CPU execute some computation, data moves from RAM to register.
+
+The C keyword `register` is used to optimize the performance of the program. However, there are some constraints:
+  - The variable must be a simple type.
+  - Only local variables and function arguments are eligible to use `register`.
+  - `register` is a suggestion, not a requirement. Too many `register` declarations may be ignored, compiled as regular variables.
+  - Registers do not reside in addressed memory. Pointer of a register is illegal.
+
+# Lecture 4
