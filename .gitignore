@@ -1,0 +1,39 @@
+# ---------------------------------
+# C/C++ Compilation Artifacts
+# ---------------------------------
+# Object files
+*.o
+# Executables (General)
+a.out
+*.out
+# Compiler-specific files
+*.mod
+*.pdb
+*.ilk
+
+# ---------------------------------
+# Debugging and Profiling
+# ---------------------------------
+# GDB / LLDB / Valgrind logs
+gmon.out
+vgcore.*
+valgrind.*
+
+# ---------------------------------
+# OS Specific Files
+# ---------------------------------
+# macOS
+.DS_Store
+# Windows/WSL
+Thumbs.db
+
+# ---------------------------------
+# IDE/Editor Specific (VS Code)
+# ---------------------------------
+# VS Code Configuration (Optional: exclude only if you don't want to share launch/tasks settings)
+.vscode/
+
+# Editor swap files
+*~
+# Vim
+*.swp
