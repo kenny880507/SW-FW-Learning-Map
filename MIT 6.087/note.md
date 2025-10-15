@@ -79,3 +79,33 @@ The following table shows several commonly used macro:
 | `#if`, `#ifdef`, `#ifndef`, `#else`, `#elif`, `#endif` | `#ifdef MACRO` / `#if CONST_EXPR` / `#endif` | Conditional preprocessor macros used to control which lines of code are compiled. | Conditions must be preprocessor defines or literals (integer constant expressions), evaluated before the code is compiled. Often used in header files to prevent multiple inclusion. |
 
 # Lecture 2
+
+Key point:
+- C is a weakly typed language. It allows implicit conversion and forced casting for datatypes.
+- Operators specify how an object can be manipulated (e.g., numeric vs. string operations).
+- `Big endian`: the most significant bits (MSBs) occupy the lower address. This representation is used in the powerpc processor. Networks generally use big-endian order, and thus it is called network order.
+- `Little endian`: the least signficant bits (LSBs) occupy the lower address. This representation is used on all x86 compatible processors.
+- Expression of constants:
+  - Integer:
+    - `int i = 3;`: `3` is an int by default.
+    - `long i = 3;`: `3` is an int by default and is implicitly converted to long.
+    - `unsigned long i = 3UL`: The postfix `UL` instructs the compiler to treat `3` as unsigned long.
+    - `int i = 0xA`: The prefix `0x` indicates that contant `A` is a hexadecimal number.
+    - `int i = 012`: The prefix `0` indicates that contant `12` is a octal number.
+  - Floating Point:
+    - `float pi = 3.14`: `3.14` is an float by default.
+    - `float pi = 3.14f`: The prefix `f` indicates that contant `3.14` is float type.
+    - `double pi = 3.14l`: The prefix `l` indicates that contant `3.14` is double type.
+  - Character:
+    - `'A'`: Character.
+    - `'\x41'`: Character specified in hex.
+    - `'0101'`: Character specified in octal.
+  - String:
+    - `"ab"`: String literal.
+    - `"a""b"`: Same as `"ab"`.
+  - Enumeration:
+    - `enum BOLL{NO,YES}`: NO=0, YES=1.
+    - `enum COLOR{R=1,G,B,Y=10}`: R=1, G=2, B=3, Y=10.
+
+# Lecture 3
+
