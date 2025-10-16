@@ -107,6 +107,7 @@ Key point:
     - `enum BOLL{NO,YES}`: NO=0, YES=1.
     - `enum COLOR{R=1,G,B,Y=10}`: R=1, G=2, B=3, Y=10.
 
+<<<<<<< HEAD
 **Table of operators' precedence**
 
 | Precedence Group | Operator | Description | Associativity |
@@ -126,6 +127,22 @@ Key point:
 | 13 | ?: | Conditional Operator (Ternary) | Right-to-Left |
 | 14 | = += -= *= /= %= <<= >>= &= ^= |= | Assignment Operators (Simple and Compound) | Right-to-Left |
 | 15 (Lowest) | , | Comma Operator | Left-to-Right |
+=======
+The following table campare the bit number and range of different numerical data types:
+
+| Data Type | Total Bits (Bytes) | Sign, Exponent, Mantissa Bits (Floating Point Only) | Approximate Range / Min & Max Values |
+| :--- | :--- | :--- | :--- |
+| short (signed) | 16 bits (2 Bytes) | N/A | -32,768 ~ +32,767 (Minimum C Standard) |
+| unsigned short | 16 bits (2 Bytes) | N/A | 0 ~ 65,535 (Minimum C Standard) |
+| int (default signed) | 32 bits (4 Bytes) (Common) | N/A | -2,147,483,648 ~ +2,147,483,647 |
+| unsigned int | 32 bits (4 Bytes) (Common) | N/A | 0 ~ 4,294,967,295 |
+| long (signed) | 32 or 64 bits (4 or 8 Bytes) | N/A | +/- 2.1e9 (if 32-bit) OR +/- 9.2e18 (if 64-bit) |
+| unsigned long | 32 or 64 bits (4 or 8 Bytes) | N/A | 0 ~ 4.2e9 (if 32-bit) OR 1.8e19 (if 64-bit) |
+| float | 32 bits (4 Bytes) | Sign: 1, Exponent: 8, Mantissa: 23 | Max: 3.4e+38, Min (non-zero): 1.17e-38 |
+| double | 64 bits (8 Bytes) | Sign: 1, Exponent: 11, Mantissa: 52 | Max: 1.8e+308, Min (non-zero): 2.2e-308 |
+| char (signed) | 8 bits (1 Byte) (Common) | N/A | -128 ~ +127 (Minimum C Standard) |
+| unsigned char | 8 bits (1 Byte) (Common) | N/A | 0 ~ 255 |
+>>>>>>> 391b443 (update MIT 6.087 note)
 
 # Lecture 3
 
