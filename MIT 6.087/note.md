@@ -126,6 +126,7 @@ Key point:
 | 13 | ?: | Conditional Operator (Ternary) | Right-to-Left |
 | 14 | = += -= *= /= %= <<= >>= &= ^= |= | Assignment Operators (Simple and Compound) | Right-to-Left |
 | 15 (Lowest) | , | Comma Operator | Left-to-Right |
+
 The following table campare the bit number and range of different numerical data types:
 
 | Data Type | Total Bits (Bytes) | Sign, Exponent, Mantissa Bits (Floating Point Only) | Approximate Range / Min & Max Values |
