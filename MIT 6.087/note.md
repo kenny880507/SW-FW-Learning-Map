@@ -422,3 +422,57 @@ int main(int argc, char* argv[])
 
 # Lecture 5
 
+## Memory
+
+**Physical memory**: Physical resources where data can be stored and accessed by your computer
+  - CPU cache
+  - RAM
+  - hard disk
+  - removable device
+
+**Virtual memory**: When program initializes, it may ask some memory address to store data. OS will distribute memory from RAM and hard disk to be the virtual memory. Virtual memory is sequence, and the virtual address starts from 0. 
+
+Every variable residing in memory has an address except for
+  - register variables
+  - constants/literals/preprocessor defines
+  - expressions (unless result is a variable)
+
+`&` operator can access the address of variable. When data type is declared and followed by a `*`, it is a pointer of the data type.
+
+```C
+int n = 1; // n is a int variable
+int* pn = &n; // pn is the pointer of n
+double pi = 3.14; // pi is a double variable
+double* ppi = &pi; // ppi is the pointer of pi
+```
+
+`*` operator followed by a pointer can dereference the pointer and access the value at corresponding address.
+
+```C
+printf("%d", *ppi); // output >> 3.14
+```
+
+Dereferenced pointer can operate just like variable.
+
+```C
+*ppi = *ppi + *pn; // pi is equal to 4.14 now
+```
+
+A pointer can be explicitly cast to any other type pointer by `()` operater.
+
+```C
+int var = 1;
+int* p_int = &var;
+double* p_double = (double*)p_int;
+```
+
+After above operation, `var` is still a `int` variable. Only when `p_double` is dereferenced that will treat the bits of `var` as `double`.
+
+Functions can only return at most 1 variable in C. An alternative way to output multiple results is to pass pointers into the function.
+
+```C
+int a = 10, x, y;
+int any_fn(a, &x, &y); // pass the pointers of x and y into function
+```
+
+Now `any_fn()` can modify the values of `x` and `y` by dereferencing the pointers.
