@@ -107,7 +107,6 @@ Key point:
     - `enum BOLL{NO,YES}`: NO=0, YES=1.
     - `enum COLOR{R=1,G,B,Y=10}`: R=1, G=2, B=3, Y=10.
 
-<<<<<<< HEAD
 **Table of operators' precedence**
 
 | Precedence Group | Operator | Description | Associativity |
@@ -127,7 +126,6 @@ Key point:
 | 13 | ?: | Conditional Operator (Ternary) | Right-to-Left |
 | 14 | = += -= *= /= %= <<= >>= &= ^= |= | Assignment Operators (Simple and Compound) | Right-to-Left |
 | 15 (Lowest) | , | Comma Operator | Left-to-Right |
-=======
 The following table campare the bit number and range of different numerical data types:
 
 | Data Type | Total Bits (Bytes) | Sign, Exponent, Mantissa Bits (Floating Point Only) | Approximate Range / Min & Max Values |
@@ -142,7 +140,6 @@ The following table campare the bit number and range of different numerical data
 | double | 64 bits (8 Bytes) | Sign: 1, Exponent: 11, Mantissa: 52 | Max: 1.8e+308, Min (non-zero): 2.2e-308 |
 | char (signed) | 8 bits (1 Byte) (Common) | N/A | -128 ~ +127 (Minimum C Standard) |
 | unsigned char | 8 bits (1 Byte) (Common) | N/A | 0 ~ 255 |
->>>>>>> 391b443 (update MIT 6.087 note)
 
 # Lecture 3
 
@@ -268,3 +265,159 @@ The C keyword `register` is used to optimize the performance of the program. How
   - Registers do not reside in addressed memory. Pointer of a register is illegal.
 
 # Lecture 4
+
+## goto
+
+`goto` provides a way to unconditionally jump to arbitrary position of code.
+
+```C
+for(...){
+  for(...){
+    /* some expression */
+    if(condition) goto error;
+  }
+}
+error:
+/* keep going from gere */
+```
+**notice**: The readability of code decreases when the number of `goto` increases. More `goto` may cause debug harder.
+
+## <stdio.h>
+
+`int putchar(int)`: Puts the character on the standard output. Then, returns the character printed or EOF on error.
+`int getchar()`: Returns the next character from standard input. If error occured, returns EOF.
+
+If a executable file `a.out` needs standard input, `<` operator can use a file as standard input.
+
+```bash
+./a.out < file.txt
+```
+
+`int printf(char format[],arg1,arg2 ,...)` provides a formatted way to print variables. Returns the number of characters printed.
+
+```C
+printf("hello world\n");
+printf("%d\n",10);
+printf("Prices: %d and %d", 10, 20);
+```
+
+The `%` symbol can be followed by some components to specify the output format.
+
+```C
+%[flag][width][.precision][modifier]<type>
+```
+
+**flag:**
+
+| format | output |
+|---|---|
+| printf ("%d, %+d, %+d",10, -10) | 10, +10, -10 |
+| printf ("%04d",10) | 0010 |
+| printf ("%7s", "hello") | bbhello |
+| printf ("%-7s", "hello") | hellobb |
+
+**width:**
+
+| format | output |
+|---|---|
+| printf ("%d",10) | "10" |
+| printf ("%4d",10) | bb10 (b:space) |
+| printf ("%s","hello") | hello |
+| printf ("%7s","hello") | bbhello |
+
+
+**precision:**
+
+| format | output |
+|---|---|
+| printf ("%.2f, %.0f", 1.141, 1.141) | 1.14, 1 |
+| printf ("%.2e, %.0e", 1.141, 100.00) | 1.14e+00, 1e+02 |
+| printf ("%.4s", "hello") | hell |
+| printf ("%.1s", "hello") | h |
+
+**modifier:**
+
+| modifier | meaning |
+|---|---|
+| h | interpreted as short. Use with i,d,o,u,x |
+| l | interpreted as long. Use with i,d,o,u,x |
+| L | interpreted as double. Use with e,f,g |
+
+**type:**
+
+| Type | Meaning | Example |
+| :--- | :--- | :--- |
+| d, i | integer | printf ("%d", 10); /*prints 10*/ |
+| x, X | integer (hex) | printf ("%x", 10); /*prints 0xa*/ |
+| u | unsigned integer | printf ("%u", 10); /*prints 10*/ |
+| c | character | printf ("%c", 'A'); /*prints A*/ |
+| s | string | printf ("%s", "hello"); /*prints hello*/ |
+| f | float | printf ("%f", 2.3); /*prints 2.3*/ |
+| d | double | printf ("%d", 2.3); /*prints 2.3*/ |
+| e, E | float(exp) | 1e3, 1.2E3, 1E-3 |
+| % | literal % | printf ("%d %%", 10); /*prints 10%*/ |
+
+`int scanf(char* format[],...)` is the input analog of printf. The format specification is the same as that for `printf()`.
+  >**Important**: 
+  > - `scanf()` ignores white spaces.
+  > - Arguments have to be address of variables.
+
+| printf | scanf |
+|---|---|
+| printf ("%d",x) | scanf ("%d",&x) |
+| printf ("%10d",x) | scanf ("%d",&x) |
+| printf ("%f",f) | scanf ("%f",&f) |
+| printf ("%s",str) | scanf ("%s",str) /*note no & required*/ |
+| printf ("%s",str) | scanf ("%20s",str) /*note no & required*/ |
+| printf ("%s %s",fname,lname) | scanf ("%20s %20s",fname,lname) |
+
+`printf` and `scanf` input data from either keyboard or file in command line. They have similar functions that input from string:
+
+```C
+int sprintf(char string [], char format[], arg1, arg2)
+int sscanf(char str [], char format[], arg1, arg2)
+```
+
+C use `fopen()` to read data from text or binary files:
+
+```C
+FILE* fopen(char name[],char mode[])
+```
+
+- mode can be "r" (read only),"w" (write only),"a" (append) among other options.
+- fopen returns a pointer to the file stream if it exists or `NULL` otherwise.
+  
+`fclose()` is used to close the stream (releases OS resources):
+
+```C
+int fclose(FILE* fp)
+```
+
+If the file stream `fp` is open.
+- `getc()` reads a single character from stream.
+- `fgets()` reads a single line.
+- `putc()` writes a single character into stream.
+- `fputs()` writes a single line.
+- `fscanf` reads formated data from stream. Similar to `scanf()` and `sscanf()`.
+
+```C
+int getc(FILE* fp)
+char[] fgets(char line [], int maxlen, FILE* fp)
+int putc(int c, FILE* fp)
+int fputs(char line [], FILE* fp)
+int fscanf(FILE* fp, char format[], arg1, arg2)
+```
+
+`main()` can read the input from command line:
+
+```C
+int main(int argc, char* argv[])
+```
+
+| command line | argc | argv[0] | argv[1] | argv[2] |
+| :--- | :--- | :--- | :--- | :--- |
+| `./cat a.txt b.txt` | 3 | "cat" | "a.txt" | "b.txt" |
+| `./cat` | 1 | "cat" | - | - |
+
+# Lecture 5
+
