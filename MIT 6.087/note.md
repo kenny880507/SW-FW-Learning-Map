@@ -8,9 +8,9 @@ Complier: gcc (version 11.4.0)
 Debugger: GNU gdb (version 12.1), valgrind (version 3.18.1)
 
 Platform: Mac
-OS: MacOS ???
+OS: MacOS 15.6.1
 Complier: gcc (version 15.2.0)
-Debugger: gdb (version ???)
+Debugger: gdb (version 16.3)
 
 ## Comiple
 
@@ -476,3 +476,56 @@ int any_fn(a, &x, &y); // pass the pointers of x and y into function
 ```
 
 Now `any_fn()` can modify the values of `x` and `y` by dereferencing the pointers.
+
+Operator `sizeof()` is used to return size of type or variable in bytes.
+
+```C
+int int_size = sizeof(int); // int_size is 4 bytes in 64-bit system
+int arr[8]; // arr is an integer array contains 8 integer element in sequential memory addresses
+int arr_size = sizeof(arr); // arr_size is 32 (4 times 8) bytes
+```
+
+When `arr` is called without `[]` or `*` operator, it returns a pointer points to the first element of the array. `arr[i]` returns the i-th (i starts from 0) element and is equivalent to `*(arr+i)`. As mentioned above, `arr` is a pointer, and `arr+i` returns the i-th address behind the `arr`.
+
+```C
+int* parr = arr; // assume pa = 0x00
+int a = arr[3]; // a equals to the int value stored in 0x0C
+```
+
+`<string.h>` contains some useful function for string manupulation:
+  - `char* strcpy(strto,strfrom)`: Copy `strfrom` to `strto`.
+  - `char* strncpy(strto,strfrom,n)`: Copy `n` chars from`strfrom` to `strto`.
+  - `int strcmp(str1,str2)`: Compare `str1` and `str2`. Return 0 if equal, positive if `str1>str2`, negative if `str1<str2`.
+  - `int strncmp(ste1,str2,n)`: Compare first `n` element of `str1` and `str2`.
+  - `int strlen(str)`: Returns the length of `str`.
+  - `char* strcat(strto,strfrom)`: Add `strfrom` to the end of `strto`.
+  - `char* strncat(strto,strfrom,n)`: Add n chars from `strfrom` to the end of `strto`.
+  - `char* strchr(str,c)`: Find char `c` in `str`. Returns pointer to the first occurrence, or `NULL` if not found.
+  - `char* strrchr(str,c)`: Find char `c` in `str`. Returns pointer to the last occurrence, or `NULL` if not found.
+
+## Quick sort
+
+Quick sort is used to sort an array. It has average time comlexity `O(nlogn)` and worst time comlexity `O(n^2)`.
+
+There are three main step of quick sort:
+  1. Choose a pivot (the mid point generally), and classify the array into two. The left part consists of the elements smaller than the pivot, and the right part constists of the elements larger than the pivot.
+  2. Quick sort the left part.
+  3. Quick sort the right part.
+
+The code of quick sort in recursive way is shown below:
+
+```C
+void quick_sort(int* left, int* right){
+  if(left>=right) return;
+  int pivot = *(left+(right-left)/2);
+  swap(left,left+(right-left)/2);
+  int* current, left_current = left;
+  for(currrent=left+1;current<=right;++current)
+    if(*current<pivot) swap(current,++left_current);
+  int* mid = left_current;
+  swap(mid,left);
+  if(left_current>left) quick_sort(left,mid-1);
+  if(left_current<right) quick_sort(mid+1,right);
+}
+```
+
