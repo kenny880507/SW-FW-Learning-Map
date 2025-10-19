@@ -529,3 +529,93 @@ void quick_sort(int* left, int* right){
 }
 ```
 
+# Lecture 6
+
+## Structure
+
+A `struct` defines a new datatype. The variables declared within a `struct` are called its `members`. Individual members can be accessed using `.` operator.
+
+```C
+struct new_type{
+  int member1;
+  float member2;
+  // ...
+};
+struct new_type a={10, 3.14f};
+struct new_type* pa = &a;
+int b = a.member1;
+float c = pa->member2;
+```
+
+`typedef` can be used to simply the syntax of struct declaration.
+
+```C
+struct new_type{
+  int member1;
+  float member2;
+  // ...
+};
+typedef struct new_type NewType;
+NewType a={10, 3.14f};
+NewType* pa = &a;
+int b = a.member1;
+float c = pa->member2;
+```
+
+or
+
+```C
+typedef struct{
+  int member1;
+  float member2;
+  // ...
+}NewType;
+NewType a={10, 3.14f};
+NewType* pa = &a;
+int b = a.member1;
+float c = pa->member2;
+```
+
+The name of the structure is optional. A `struct` without type name is called anonymous struct. Anonymous struct must declare at least one variable at the end of definition.
+
+```C
+struct{
+  int member1;
+  float member2;
+  // ...
+}a, b, c;
+```
+
+In the above example, `a`, `b`, `c` is the only 3 three variables of this `struct`.
+
+The size of a `struct` is greater than or equal to the sum of the sizes of its `members`. The arrangement of members is sequential in the memory. However, it might be filled by some useless bytes to match the specific alignment of memory for the consideration of CPU efficiency.
+
+
+## Union
+
+A `union` is a datatype that may hold objects of different types/sizes in the same memory location.
+
+```C
+union data{
+  int i;
+  float f;
+  char* s;
+};
+union data d1;
+d1.i = 10; // d1 stores int data;
+d1.f = 2.1f;  // the int data in d1 is overwrited by float data;
+```
+
+The size of a `union` is the largest size of the members. `union` may only store the last assignment. However, you can read the data as other datatype. Using `char[]` is one way to inspect or manipulate the bytes of raw data.
+
+## Bit field
+
+A `bit-field` is a set of adjacent bits.
+
+```C
+unsigned int BOOL:1; // use a bit to represent for true or false
+```
+
+`unsigned int` is a convention that can prevent sign bit.
+
+Another purpose of `bit-field` is to save the memory. If a variable only stores an integer ranges from 1 to 10, a large portion of `int` bytes will be wasted. Instead, using only 4-bit `int` to store it may be a reasonable way.
