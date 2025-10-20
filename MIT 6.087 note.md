@@ -767,3 +767,128 @@ int (*pf)(int);
 
 Definition: Callback is a piece of executable code passed to functions. In C, callbacks are implemented by passing function pointers.
 
+```C
+void qsort(void* arr, int num, int size, int (*fp)(void* pa, void* pb))
+```
+
+`qsort()` function from the standard library can sort an array of any datatype. It calls a function whenever a comparison needs to be done. The function takes two arguments and returns (<0,0,>0) depending on the relative order of the two items.
+
+```C
+int arr[] = {10,9,8,1,2,3,5};
+int asc(void* pa, void* pb){
+  return (*(int*)pa-*(int*)pb);
+}
+int desc(void* pa, void* pb){
+  return (*(int*)pb-*(int*)pa);
+}
+qsort(arr,sizeof(arr)/sizeof(int),sizeof(int),asc); // sort in ascending order
+qsort(arr,sizeof(arr)/sizeof(int),sizeof(int),desc); // sort in descending order
+```
+
+## Array of function pointers
+
+Consider the case where different functions are called based on a value.
+
+```C
+enum TYPE{SQUARE,RECT,CIRCILE,POLYGON};
+struct shape {
+float params[MAX];
+enum TYPE type;
+};
+
+void draw(struct shape* ps){
+  switch(ps−>type){
+    case SQUARE:
+    draw_square(ps); break;
+    case RECT:
+    draw_rect(ps); break;
+    //...
+  }
+} 
+```
+
+The same can be done using an array of function pointers instead.
+
+```C
+void (*fp[4])(struct shape* ps)={&draw_square,&draw_rec,&draw_circ,&draw_poly};
+void draw(struct shape* ps){
+  fp[ps->type](ps);
+}
+```
+
+## Hash table
+
+(skip)
+
+# Lecture 9
+
+## Symbols and libraries
+
+Programs access libraries’ functions and variables via identifiers known as symbols. Header file declarations/prototypes mapped to symbols at compile time. Symbols linked to definitions in external libraries during linking.
+
+```C
+#include <stdio.h>
+
+const char msg[] = "hello world!";
+
+int main(void){
+  puts(msg);
+  return 0;
+}
+```
+
+The functions `main()`, `puts()` and the variable `msg` are global and known as symbols.
+
+The following command can produce `.o` file without linking:
+
+```bash
+gcc -Wall -c hello.c -o hello.o
+```
+
+- `-c`: compile without linking. The output `.o` file is not executable.
+- Addresses for lines of code and static and global variables not yet assigned.
+- Need to perform link step on `.o` (using `gcc` or `ld`) to assign memory to each symbol.
+- Linking resolves symbols defined elsewhere and makes the code executable.
+
+Use `nm` (Name List) command to list all symbols in the binary file.
+
+```bash
+nm hello.o
+```
+
+The output will be:
+
+```bash
+0000000000000000 T main
+0000000000000000 R msg
+                 U puts
+```
+
+- `T` means text (code). `R` means read-only memory. `U` means undefined symbol.
+- Addresses are all zero before linking, and symbols are not allocated memory yet.
+- Undefined symbols are defined externally and resolved during linking.
+
+Instead, if we compile with linking:
+
+```bash
+gcc -Wall hello.o -o hello
+nm hello
+```
+
+The output will be:
+
+```bash
+.
+.
+.
+0000000000001149 T main
+0000000000002008 R msg
+                 U puts@GLIBC_2.2.5
+```
+
+- Addresses for static (allocated at compile time) symbols.
+- Symbol `puts` located in shared library GLIBC_2.2.5 (GNU C standard library)
+- Shared symbol `puts` not assigned memory until run time.
+
+## Static and dynamic linkage
+
