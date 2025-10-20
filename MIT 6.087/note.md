@@ -619,3 +619,151 @@ unsigned int BOOL:1; // use a bit to represent for true or false
 `unsigned int` is a convention that can prevent sign bit.
 
 Another purpose of `bit-field` is to save the memory. If a variable only stores an integer ranges from 1 to 10, a large portion of `int` bytes will be wasted. Instead, using only 4-bit `int` to store it may be a reasonable way.
+
+## Dynamic memory allocation
+
+`void* malloc(size_t size)`:
+  - Returns a pointer to **uninitialized** block of memory on success.
+  - Returns NULL on failure.
+  - The returned value should be cast to appropriate type. `int* ptr=(int*)malloc(sizeof(int)*100)`
+
+`void* calloc(size_t n, size_t size)`:
+  - Allocates an array of `n` elements each of which is `size` bytes.
+
+`void* free(void*)`:
+  - Frees memory allocated by `malloc()`.
+
+> [!NOTE]
+> The note about data structure might be skipped.
+> Another repo of mine contains more complete illustration. Please check out [here](https://github.com/kenny880507/Data-Structures-And-Algorithms-Log.git).
+
+## Linked list
+
+(skip)
+
+## Binary tree
+
+(skip)
+
+# Lecture 7
+
+## Struct: the order of member matters
+
+The order of member may influence the memory size of the `struct`.
+
+```C
+struct foo{
+  short s; // 2 bytes + 2 padding bytes = 4 bytes
+  union{ // 4 bytes
+    int i; // size of union determined by int
+    char c;
+  }u;
+  unsigned int flag_s:1; // 1 bit
+  unsigned int flag_u:2; // 2 bit, align with flag_s and pad to 4 bytes
+  unsigned int bar; // 4 bytes
+}
+```
+
+As the above example, total size of `foo` is 4+4+4+4=16 bytes. However, if the order of the `struct` changes, total size of `foo` can reduce to 12 bytes.
+
+```C
+struct foo{
+  union{ // 4 bytes
+    int i; // size of union determined by int
+    char c;
+  }u;
+  unsigned int bar; // 4 bytes
+  // below 3 members are aligned in 4 bytes
+  short s; // 2 bytes
+  unsigned int flag_s:1; // 1 bit
+  unsigned int flag_u:2; // 2 bit
+}
+```
+
+## Pointer array
+
+There is an `int` array contains 100 elements.
+
+```C
+int arr[100];
+```
+
+If we want to sort the array without modifying array itself. We can use a pointer array `int*` containing pointers to elements of array and sort the pointers.
+
+```C
+int* ptr[100];
+```
+
+An array of strings stores pointers to the first `char` address (which is also a pointer) of each string.
+
+```C
+char str1[] = "hello";
+char str2[] = "goodbye";
+char* strArr[] = {str1,str2};
+```
+
+## Multidimensional arrays
+
+C also permits multidimensional arrays:
+
+```C
+int arr[20][30]; // a 20x30 int array
+```
+
+Multidimensional arrays are rectangular; pointer arrays can be arbitrary shaped.
+
+## Stack
+
+(skip)
+
+## Queue
+
+(skip)
+
+## Prefix, infix, postfix notation
+
+Stacks and queues allow us to design a simple expression evaluator.
+
+| Infix | Prefix | Postfix |
+| :--- | :--- | :--- |
+| A+B | +AB | AB+|
+| A*B+C | -*ABC | AB*C- |
+| (A+B)*(C-D) | *+AB-CD | AB+CD-* |
+
+Infix more natural to write, postfix easier to evaluate.
+
+# Lecture 8
+
+## Void pointers
+
+C allows `void` pointers. Void pointers can be used to point to any data type.
+
+```C
+int i;
+void* pi = &i;
+float f;
+void* pf = &f;
+```
+
+`void` pointers cannot be dereferenced. The pointers should always be cast before dereferencing. 
+
+```C
+void* p;
+printf("%d",*p); // invalid
+printf("%d",*(int*)p); // valid
+```
+
+## Function pointers
+
+In some programming languages, functions are first class variables (can be passed to functions, returned from functions etc.).
+
+In C, function itself is not a variable. But it is possible to declare pointer to functions.
+
+```C
+int (*pf)(int);
+```
+
+## Callback
+
+Definition: Callback is a piece of executable code passed to functions. In C, callbacks are implemented by passing function pointers.
+
