@@ -634,7 +634,7 @@ Another purpose of `bit-field` is to save the memory. If a variable only stores 
   - Frees memory allocated by `malloc()`.
 
 > [!NOTE]
-> The note about data structure might be skipped.
+> The note about data structure might be skipped.  
 > Another repo of mine contains more complete illustration. Please check out [here](https://github.com/kenny880507/Data-Structures-And-Algorithms-Log.git).
 
 ## Linked list
@@ -878,9 +878,7 @@ nm hello
 The output will be:
 
 ```bash
-.
-.
-.
+⋮
 0000000000001149 T main
 0000000000002008 R msg
                  U puts@GLIBC_2.2.5
@@ -891,4 +889,106 @@ The output will be:
 - Shared symbol `puts` not assigned memory until run time.
 
 ## Static and dynamic linkage
+
+Memory can be allocated at compile time (static) or at run time (dynamic).
+
+- Static linkage: Symbols in same file, other `.o` files, or static libraries `.a`.
+- Dynamic linkage: Symbols in shared libraries `.so`.
+
+`gcc` links against shared libraries by default, can force static linkage using `-static` flag.
+
+If we complie with `-static` flag:
+
+```bash
+gcc -Wall -static hello.c -o hello
+```
+
+The output will be:
+
+```bash
+⋮
+0000000000401775 T main
+⋮
+0000000000498008 R msg
+⋮
+000000000040c180 W puts
+⋮
+```
+
+`W` means linked to another symbol.
+
+### Static linkage
+
+- At link time, statically linked symbols added to executable.
+- Results in much larger executable file (static – 688K, dynamic – 10K).
+- Resulting executable does not depend on locating external library files at run time.
+- To use newer version of library, have to recompile main program.
+
+### Dynamic linkage
+
+- Dynamic linkage occurs at run-time.
+- During compile, linker just looks for symbol in external shared libraries.
+- Shared library symbols loaded as part of program startup (before `main()`).
+- Requires external library to define symbol exactly as expected from header file declaration
+
+### Linking external libraries
+
+- Programs linked against C standard library by default.
+- To link against library `libnamespec.so` (dynamic) or `libnamespec.a` (static) use compiler flag `-lnamespec` to link against library.
+- Library must be in library path or specified using `-L <directory>` compiler flag
+
+### Loading shared libraries
+
+- Shared library located during compile-time linkage, but needs to be located again during run-time loading.
+- Shared libraries located at run-time using linker library `ld.so`.
+- Whenever shared libraries on system change, need to run `ldconfig` to update links seen by `ld.so`.
+- During loading, symbols in dynamic library are allocated memory and loaded from shared library file.
+
+### Loading shared libraries in .c
+
+- In Linux, can load symbols from shared libraries on demand using functions in `dlfcn.h`.
+- Open a shared library for loading:
+  - `void* dlopen(const char* file, int mode)`
+  - values for mode: combination of RTLD_LAZY (lazy loading of library), RTLD_NOW (load now), RTLD_GLOBAL (make symbols in library available to other libraries yet to be loaded), RTLD_LOCAL (symbols loaded are accessible only to your code)
+- Get the address of a symbol loaded from the library:
+  - `void* dlsym(void* handle, const char* symbol_name)`
+  - `handle` from call to `dlopen()`; returned address is pointer to variable or function identified by `symbol_name`
+- Need to close shared library file handle after done with symbols in library:
+  - `int dlclose(void* handle)`
+- These functions are not part of C standard library; need to link against library `libdl: -ldl` compiler flag.
+
+### Creating libraries
+
+| Action | Command line | Notes |
+| :--- | :--- | :--- |
+| compile `.o` | `gcc -g -Wall -c infile.c -o outfile.o` |
+| create `.a` by `.o` | `ar -rcs libname.a outfile1.o outfile2.o` |
+| compile `.o` (for `.so`) | `gcc -g -Wall -fPIC -c infile.c -o outfile.o` | `-fPIC`: create  position-independent code, since code will be repositioned during loading |
+| create `.so` by `.o` | `ld -shared -soname libname.so -o libname.so.version -lc outfile1.o outfile2.o` | `-lc`: find the library named `libc.so` |
+
+> [!NOTE]
+> `-l` flag is used to find the lib that matches naming convention of Linux.  
+> The `.so` file who mathches `lib<name>.so` can be find by `-l` flag.  
+> `-la` will find `liba.so`; `-labc` will find `libabc.so`.
+
+### Summary of compile process
+
+1. Compile `.c` files to `.o` files.
+2. (optional) Pack `.o` files to a dynamic library `.a` by `ar` (archiver) tool. Link `.o` files to a static library `.so` by `gcc` or `ld` (linker).
+3. Compile executable, and link it to `.o`, `.a`, `.so`. 
+  > `-L <dir>` is a flag for linker to find the libraries.  
+  > Executable distribute memory to symbols from `.o` and `.a`.  
+  > The `U` symbols will be labeled with the name of `.so`.
+4. At the beginning of the program, the static symbols (from `.o` and `.a`) are already in the memory. Dynamic Loader will find the `.so` files from `rpath`, LD_LIBRARY_PATH, system cache, etc. Then, load the `.so` into virtual memory. The `U` symbol will fix-up and point to the address at `.so` (in virtual memory).
+
+## B-tree
+
+(skip)
+
+## Priority queue
+
+(skip)
+
+# Lecture 10
+
 
