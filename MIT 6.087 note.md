@@ -991,4 +991,115 @@ The output will be:
 
 # Lecture 10
 
+## <stdio.h>
+
+```C
+FILE* fopen(const char* filename, const char* mode)
+```
+
+- `mode` can be 'r' (read), 'w' (write), 'a' (append)
+- 'b' can be appended for binary input/output (unnecessary in Linux)
+- returns NULL on error
+
+```C
+FILE* freopen(const char* filename, const char* mode, FILE* stream)
+```
+
+- redirects the stream to the file
+- returns NULL on error
+
+```C
+int fflush(FILE* stream)
+```
+
+- flushes any unwritten data
+- if stream is NULL flush all output streams
+- returns EOF on error
+
+```C
+int remove(const char* filename)
+```
+
+- removes the file from the file system
+- returns non-zero on error
+
+```C
+int rename(const char* oldname, const char* newname)
+```
+
+- renames file
+- returns non-zero on error
+
+```C
+FILE* tmpfile(void)
+```
+
+- create a temporary file with mode "wb+"
+- the file is removed automatically when program terminates
+
+```C
+char* tmpnam(char s[L_tmpnam])
+```
+
+- creates a string that is not the name of existing file
+- return reference to internal static array if `s` is NULL or populate `s` otherwise
+- generates a new name every call
+
+```C
+size_t fread(void* ptr, size_t size, size_t nobj, FILE* stream)
+```
+
+- reads at most `nobj` (number of object) items of size `size` from stream into `ptr`
+- returns the number of items read
+- `feof()` and `ferror()` must be used to test end of file
+
+```C
+size_t fwrite(const void* ptr, size_t size, size_t nobj, FILE* stream)
+```
+
+- write at most `nobj` items of size `size` from `ptr` onto `stream`
+- returns number of objects written
+
+```C
+int fseek(FILE* stream, long offset, int origin)
+```
+
+- sets file position in the stream
+- `origin` can be `SEEK_SET`, `SEEK_CUR`, `SEEK_END`
+- returns non-zero on error
+
+```C
+long ftell(FILE* stream)
+```
+
+- returns the current position within the file
+- returns -1L on error
+
+```C
+int rewind(FILE* stream)
+```
+
+- sets the file pointer at beginning
+- equivalent to `fseek(stream,0L,SEEK_SET)
+
+```C
+void clearerr(FILE* stream)
+```
+
+- clears EOF and other error indicators on stream
+
+```C
+int feof(FILE* stream)
+```
+
+- returns non-zero if end of file indicator is set for stream
+- only way to test end of file for functions such as `fwrite()`, `fread()`
+
+```C
+int ferror(FILE* stream)
+```
+
+- returns non-zero if any error indicator is set for stream
+
+## <ctype.h>
 
