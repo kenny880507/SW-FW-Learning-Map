@@ -2,9 +2,9 @@
 
 This repository documents a self-study plan for transitioning into Software/Firmware Engineering roles, utilizing materials primarily from MIT and NYCU OpenCourseWare (OCW).
 
-| Topic | Subject | OCW | Video |
-| :--- | :--- | :--- | :--- |
-| C Language | Syntax and techniques of C language | [MIT 6.087](https://ocw.mit.edu/courses/6-087-practical-programming-in-c-january-iap-2010/) | ❌ |
+| Topic | Subject | OCW | Video | Note |
+| :--- | :--- | :--- | :--- | :--- |
+| C Language | Syntax and techniques of C language | [MIT 6.087](https://ocw.mit.edu/courses/6-087-practical-programming-in-c-january-iap-2010/) | ❌ | [6.087](MIT%206.087%20note.md) |
 | Data Structure & Algorithms | Basis of software engineer | [MIT 6.006](https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-spring-2020/) | ✅ |
 | Operating System | The core concepts of operating systems and implementation of an OS | [MIT 6.1810](https://pdos.csail.mit.edu/6.1810/2022/overview.html) | ❌ |
 | Computation Structures | Establish a comprehensive knowledge hierarchy that spans from low-level hardware to high-level software systems | [MIT 6.004](https://ocw.mit.edu/courses/6-004-computation-structures-spring-2009/) | ❌ |
