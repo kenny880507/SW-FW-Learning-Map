@@ -1103,3 +1103,260 @@ int ferror(FILE* stream)
 
 ## <ctype.h>
 
+| function | true condition |
+| :--- | :--- |
+| isalnum(c) | isalpha(c) || isdigit(c) |
+| iscntrl(c) | control characters |
+| isdigit(c) | 0~9 |
+| islower(c) | 'a'~'z' |
+| isprint(c) | printable character (includes space) |
+| ispunct(c) | punctuation |
+| isspace(c) | space, tab or new line |
+| isupper(c) | 'A'~'Z' |
+
+## <string.h>
+
+```C
+void* memcpy(void* dst, const void* src, size_t n)
+```
+
+- copies `n` bytes from `src` to `dst`
+- returns a pointer to `dst`
+- `src` and `dst` can not overlap
+
+```C
+void* move(void* dst, const void* src, size_t n)
+```
+
+- behaves same as `memcpy()`
+- `src` and `dst` can overlap
+
+```C
+int memcmp(const void* cs, const void* ct, int n)
+```
+
+- compares first `n` bytes of `cs` and `ct`
+
+```C
+void* memset(void* dst, int c, int n)
+```
+
+- fills first `n` bytes of `dst` with the value `c`
+- returns a pointer to `dst`
+
+## <stdlib.h>
+
+```C
+double atof(const char* s)
+int atoi(const char* s)
+long atol(const char* s)
+```
+
+- converts character or string to float, integer, long
+
+```C
+int rand()
+```
+
+- returns a psudo-random numbers betweem 0 and RAND_MAX
+
+```C
+void srand(unsigned int seed)
+```
+
+- sets the seed for the psudo-random generator
+
+```C
+void abort(void)
+```
+
+- causes the program to terminate abnormally
+
+```C
+void exit(int status)
+```
+
+- causes normal program termination
+- `status` is returned to operating system
+- 0 (EXIT_SUCCESS) indicates successful termination
+- Any other value indicates failure (EXIT_FAILURE)
+
+```C
+int atexit(void (*fcn)(void))
+``` 
+
+- registers a function fcn to be called when the program terminates normally
+- returns non zero when registration cannot be made
+- after `exit()` is called, the functions are called in reverse order of registration
+
+```C
+int system(const char* cmd)
+```
+
+- execute the command in string `cmd`
+- if `cmd` is not null, the program executed the command and returns exit status returned by the command
+
+```C
+void* bsearch(const void* key, const void* base, size_t n, size_t size, int (*cmp)(const void* keyval, const void datum))
+```
+
+- binary-searches `base[0]` through `base[n-1]` for `*key`
+- can only operate normally for sorted array
+- `cmp()` is used to perform comparison
+- returns a pointer to the matching item if exits and NULL otherwise
+
+```C
+void qsort(void* base, size_t n, size_t sz, void (*cmp)(const void*, const void*))
+```
+
+- sorts `base[0]` through `base[n-1]` in ascending/descending order (determined by `cmp()`)
+
+## <assert.h>
+
+```C
+void assert(int expression)
+```
+
+- used to check for invariants/code consistency during debugging
+- does nothing when expression is true
+- prints an error message indicating, expression, filename and line number
+  > macros `__FILE__` and `__LINE__` are frequently used for debugging  
+  > `__FILE__` returns `const char*` that stores the file name  
+  > `__LINE__` returns `int` that represents the line number in the file  
+
+## <stdarg.h>
+
+Variable argument lists:
+  - functions can accept variable number of arguments
+  - the data type of the argument can be different for each argument
+  - atleast one mandatory argument is required
+
+```C
+va_list ap
+```
+
+- `va_list` is a data type defined in <stdarg.h>
+- `ap` defines an iterator that will point to the variable argument
+- before using, it has to be initialized using `va_start()`
+
+```C
+va_start(va_list ap, lastarg)
+```
+
+- lastarg refers to the **name** of the last named argument
+- va_start is a macro
+
+```C
+va_arg(va_list ap, type)
+```
+
+- each call of `va_arg()` points `ap` to the next argument
+- type has to be inferred from the fixed argument or determined based on previous argument
+
+```C
+va_end(va_list ap)
+```
+
+- must be called before the function is exited
+
+```C
+int sum(int num, ...){
+  va_list ap; int total = 0;
+  va_start(ap, num);
+  while (num>0){
+    total += va_arg(ap, int) ;
+    num−−;
+  }
+  va_end(ap);
+  return total;
+}
+int suma=sum(4, 1, 2, 3, 4);
+int sumb=sum(2, 1, 2);
+```
+
+## <time.h>
+
+`time_t`, `clock_t`, `struct tm` are data types associated with time.
+
+`struct tm`:
+| member | meaning |
+| --- | --- |
+| `int tm_sec` | seconds |
+| `int tm_min` | minutes |
+| `int tm_hour` | hour since midnight (0,23) |
+| `int tm_mday` | day of the month (1,31) |
+| `int tm_mon` | month |
+| `int tm_year` | years since 1900 |
+| `int tm_wday` | day since sunday (0,6) |
+| `int tm_yday` | day since Jan 1 (0,365) |
+| `int tm_isdst` | DST flag |
+
+```C
+clock_t clock()
+```
+
+- returns processor time used since beginning of program
+- divided by CLOCKS_PER_SEC to get time in seconds 
+
+```C
+time_t time(time_t* tp)
+```
+
+- returns current time (seconds since Jan 1 1970)
+- if `tp` is not NULL, also populates `tp`.
+
+```C
+double difftime(time_t t1,time_t t2)
+```
+
+- returns difference in seconds
+
+```C
+time_t mktime(struct tm* tp)
+```
+
+- converts the structure to a time_t object
+- returns -1 if conversion is not possible
+
+```C
+char* asctime(const struct tm* tp)
+```
+
+- returns string representation of the form "Sun Jan 3 15:14:13 1988"
+- returns static reference (can be overwritten by other calls)
+
+```C
+struct tm* localtime(const time_t* tp)
+```
+
+- converts calendar time to local time
+
+```C
+char* ctime(const time_t* tp)
+```
+
+- converts calendar time to string representation of local time
+- equivalent to asctime(localtime(tp))
+
+```C
+size_t strftim(char* s, size_t smax, const char* fmt, const struct tm* tp)
+```
+
+- returns the successfully written number of characters
+- format time string is write on `s`
+- does not write more than smax characters into the string s
+
+| `fmt` representation | meaning |
+| --- | --- |
+| `%a` | abbreviated weekday name |
+| `%A` | full weekday name |
+| `%b` | abbreviated month name |
+| `%B` | full month name |
+| `%d` | day of the month |
+| `%H` | hour (0-23) |
+| `%I` | hour (0-12) |
+| `%m` | month |
+| `%M` | minute |
+| `%p` | AM/PM |
+| `%S` | second |
+
