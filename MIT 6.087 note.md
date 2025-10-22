@@ -1360,3 +1360,64 @@ size_t strftim(char* s, size_t smax, const char* fmt, const struct tm* tp)
 | `%p` | AM/PM |
 | `%S` | second |
 
+# Lecture 11
+
+## Dynamic memory allocation
+
+`mmap()` in <sys/mman.h> is used to creates a new mapping in the virtual address. Virtual memory can be returned to OS using `munmap()`.
+
+The process of memory allocation:
+  1. `mmap()` distributes new virtual memory in page table. The virtual memory is mapping to back memory now.
+    > Back memory is either file (in disk) or demand-zero memory (in RAM).
+  2. When the variable is called, "page fault" occurs.
+  3. Initialize new page frame, demand-zero memory is initialized to 0 and file is populate to RAM.
+  4. Update page table, the virtual memory is mapping to the new page frame now.
+
+```C
+void* mmap(void* start, size_t length, int prot, int flags, int fd, off_t offset)
+```
+
+- asks OS to map virtual memory of specified length, using specified physical memory (file or demand-zero)
+- `fd` is file descriptor (integer referring to a file, not a file stream) for physical memory (i.e. file) to load into memory
+- for demand-zero, including the heap, use `MMAP_ANON` flag
+- `start` – suggested starting address of mapped memory, usually NULL
+
+```C
+int munmap(void* start, size_t length)
+```
+
+- returns 0 on success or -1 on failure
+
+## Heap
+
+> [!IMPORTANT]
+> The "heap" mentioned in memory management is different from the heap in data structure.
+
+### Fundamental concept
+
+- **What is heap?** Heap is private section of virtual memory used to allocate memory dynamically. The heap is mapping to demand-zero memory.
+- **How to grow up?** A heap is initially empty and has 0 size. `brk` is an OS pointer to the top of heap.
+- **Expand heap region:** `sbrk()` is used to resize heap.
+- **Duty of allocator:** Dynamic memory allocators divide heap into blocks.
+
+### Requirements
+
+A good memory allocator must meet the following requirements:
+  - Must be able to allocate, free memory in any order.
+  - Auxiliary data structure must be on heap.
+  - Allocated memory cannot be moved.
+  - Attempt to minimize fragmentation.
+
+### Fragmentation
+
+Fragmentation is a major challenge in heap management:
+  - Internal fragmentation: block size larger than allocated variable in block.
+  - External fragmentation: free blocks spread out on heap. To minimize external fragmentation, fewer larger free blocks is prefered.
+
+### Design choice
+
+To achieve the above requirements and solve the fragmentation problem, the allocator must make the following design choices:
+  - Data structure to track blocks
+  - Algorithm for positioning a new allocation
+  - Splitting/joining free blocks
+
