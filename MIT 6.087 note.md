@@ -976,9 +976,9 @@ The output will be:
 1. Compile `.c` files to `.o` files.
 2. (optional) Pack `.o` files to a dynamic library `.a` by `ar` (archiver) tool. Link `.o` files to a static library `.so` by `gcc` or `ld` (linker).
 3. Compile executable, and link it to `.o`, `.a`, `.so`. 
-  > `-L <dir>` is a flag for linker to find the libraries.  
-  > Executable distribute memory to symbols from `.o` and `.a`.  
-  > The `U` symbols will be labeled with the name of `.so`.
+    > `-L <dir>` is a flag for linker to find the libraries.  
+    > Executable distribute memory to symbols from `.o` and `.a`.  
+    > The `U` symbols will be labeled with the name of `.so`.
 4. At the beginning of the program, the static symbols (from `.o` and `.a`) are already in the memory. Dynamic Loader will find the `.so` files from `rpath`, LD_LIBRARY_PATH, system cache, etc. Then, load the `.so` into virtual memory. The `U` symbol will fix-up and point to the address at `.so` (in virtual memory).
 
 ## B-tree
@@ -1421,3 +1421,66 @@ To achieve the above requirements and solve the fragmentation problem, the alloc
   - Algorithm for positioning a new allocation
   - Splitting/joining free blocks
 
+### Tracking blocks
+
+A block can be separated to two sections — metadata and payload. Metadata stores the information about the block itself. Payload stores the pointer to the next free block (if it is explicit free list) or the data occupied by the program.
+
+According to the expression of free state, there two kinds of free list:
+  - Implicit free list: Free state is stored in the metadata.
+  - Explicit free list: Each free block stores the pointer to the next free block, and the head pointer to the first free block is stored outside the heap. Segmented free list is an optimized version of explicit free list. It uses a list to classify different size of the block and shorten search time.
+    > The next pointer is stored in payload region. When the memory is distributed, the data will directly overwrite the memory of it.
+
+### Positioning allocations
+
+There are three strategy to find the block:
+  - Fist fit: Start at the head of the list.
+  - Next fit: Start at the end of last search.
+  - Best fit: Traverse entire list to find the best matched block.
+
+### Splitting and joining blocks
+
+- At allocation, can use entire free block, or part of it, splitting the block in two.
+- Splitting reduces internal fragmentation, but more complicated to implement.
+- To join (coalesce) adjacent free blocks during (or after) freeing can reduce external fragmentation.
+- The footer of a block stores the pointer to the header of that block, allows the successive block to find address of previous block.
+
+### Relationship between heap, block and page
+
+The hierarchy level:
+
+**`heap`>`block` and `heap`>`page`**
+
+`page` is the smallest unit in virtual memory and has a fixed size detemined by the system. A `page` maps to a real memory called `page frame`. The size of a `page frame` is same as `page`.
+
+A `block` is formed by dividing `pages` and sequential in virtual memory. A `page` can be devided into many `block`. A `block` can also across many `pages`.
+
+The `heap` is filled with `blocks`. `allocator` use `heap` to manage `blocks`.
+
+## Using `malloc()`
+
+- Minimize overhead – use fewer, larger allocations.
+- Minimize fragmentation – reuse memory allocations as much as possible.
+- Growing memory – using realloc() can reduce fragmentation.
+- Repeated allocation and freeing of variables can lead to poor performance from unnecessary splitting/coalescing (depending on implementation of malloc()).
+
+## `valgrind` tools
+
+Usage:
+
+```bash
+valgrind --tool=memcheck --leak-check=yes program.o
+```
+
+- Tools:
+  - `memcheck`: Runs program using virtual machine and tracks memory leaks.
+  - `cachegrind`: Counts cache misses for each line of code.
+  - `callgrind`: Counts function calls and costs in program.
+  - `massif`: Tracks overall heap usage.
+
+## Garbage collection
+
+- C implements no garbage collector.
+- Memory not freed remains in virtual memory until program terminates.
+- Other languages like Java implement garbage collectors to free unreferenced memory.
+
+# Lecture 12
