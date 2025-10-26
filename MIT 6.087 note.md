@@ -997,7 +997,7 @@ The output will be:
 FILE* fopen(const char* filename, const char* mode)
 ```
 
-- `mode` can be 'r' (read), 'w' (write), 'a' (append)
+- `mode` can be "r" (read), "w" (write), "a" (append)
 - 'b' can be appended for binary input/output (unnecessary in Linux)
 - returns NULL on error
 
