@@ -1509,9 +1509,124 @@ gcc -g -O0 -Wall <source>.c -o <output>.o -pthread
 
 There are 4 commonly used data type about pthread:
 
-- pthread_t: Used to reference the thread after successful creation with pthread_create.
-- pthread_attr_t: Passed to pthread_create to specify thread attributes like detach state or stack size.
-- pthread_mutex_t: Ensures that only one thread can enter the critical section at any given time.
-- pthread_cond_t: Allows threads to sleep efficiently while waiting for a condition, avoiding busy waiting (polling).
+- `pthread_t`: Used to reference the thread after successful creation with pthread_create.
+- `pthread_attr_t`: Passed to pthread_create to specify thread attributes like detach state or stack size.
+- `pthread_mutex_t`: Ensures that only one thread can enter the critical section at any given time.
+- `pthread_cond_t`: Allows threads to sleep efficiently while waiting for a condition, avoiding busy waiting (polling).
 
 ### pthread_t
+
+```C
+int pthread__create(pthread_t* thread, const pthread_attr_t* attr, void *(*start_routine)(void*), void* arg)
+```
+
+- Creates a new thread with the attributes specified by `attr`.
+- Default attributes are used if `attr` is `NULL`.
+- On success, stores the thread into `thread`.
+- Calls function `start_routine(arg)` on a separate thread of execution.
+- Returns zero on success, non-zero on error.
+
+```C
+void pthread_exit(void* value_ptr)
+```
+
+- Called implicitly when thread function exits.
+- Analogous to `exit()`.
+
+```C
+int pthread_join(pthread_t thread, void **value_ptr)
+```
+
+- `pthread_join()` blocks the calling thread until the specified thread terminates.
+- If `value_ptr` is not null, it will contain the return status of the called thread.
+- The `attr` of `thread` must be JOINABLE.
+  > If the `attr` of `thread` is DETACHED, source will release automatically.
+
+### pthread_attr_t
+
+```C
+int pthread_attr_init(pthread_attr_t* attr)
+```
+
+- Initialize the `pthread_attr_t` instance by the pointer.
+
+```C
+int pthread_attr_setdetachstate(pthread_attr_t *attr, int detachstate)
+```
+
+- Set the detach state which may be `PTHREAD_CREATE_DETACHED` or `PTHREAD_CREATE_JOINABLE` (default).
+
+```C
+int pthread_attr_destroy(pthread_attr_t *attr)
+```
+
+- Destroy the target `pthread_attr_t`.
+- The threads created by `attr` will not be destroyed.
+
+### pthread_mutex_t
+
+Mutex (mutual exclusion) acts as a "lock" protecting access to the shared resource. Only one thread can "own" the mutex at a time. Threads must take turns to lock the mutex.
+
+```C
+int pthread_mutex_init(pthread_mutex_t* mutex, const pthread_mutexattr_t* mutexattr)
+```
+
+-  If mutexattr is `NULL`, default are used.
+-  The macro `PTHREAD_MUTEX_INITIALIZER` can be used to initialize static mutexes.
+
+```C
+int pthread_mutex_destroy(pthread_mutex_t* mutex)
+```
+
+- Destroy the target `pthread_mutex_t`.
+
+```C
+int pthread_mutex_lock(pthread_mutex_t* mutex)
+int pthread_mutex_trylock(pthread_mutex_t* mutex)
+int pthread_mutex_unlock(pthread_mutex_t* mutex)
+```
+
+- `pthread_mutex_lock()` locks the given mutex. If the mutex is locked, the function is blocked until it becomes available.
+- `pthread_mutex_trylock()` is the non-blocking version. If the mutex is currently locked the call will return immediately.
+- `pthread_mutex_unlock()` unlocks the mutex.
+
+### pthread_cond_t
+
+```C
+int pthread_cond_init(pthread_cond_t* cond, const pthread_condattr_t* attr)
+pthread_cond_t cond = PTHREAD_COND_INITIALIZER
+```
+
+- Two ways to initialize `pthread_cond_t`.
+
+```C
+int pthread_cond_destroy(pthread_cond_t* cond);
+```
+
+- Destroy (uninitialize) the target `pthread_cond_t`.
+- Destroying a `pthread_cond_t` upon which other threads are currently blocked results in undefined behavior.
+
+```C
+int pthread_cond_wait(pthread_cond_t* cond, pthread_mutex_t* mutex);
+```
+
+- Blocks on a condition variable.
+- Must be called with the mutex already locked otherwise behavior undefined.
+- Automatically releases mutex.
+- When `pthread_cond_broadcast(cond)` or `pthread_cond_signal(cond)` executed, the mutex will be automatically locked again.
+
+```C
+int pthread_cond_broadcast(pthread_cond_t* cond)
+int pthread_cond_signal(pthread_cond_t* cond)
+```
+
+- `pthread_cond_broadcast()` unlocks all threads that are waiting.
+- `pthread_cond_broadcast()` unlocks one of the waiting threads.
+
+# Lecture 13
+
+
+
+
+
+# Lecture 14
