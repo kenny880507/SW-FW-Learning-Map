@@ -1495,3 +1495,23 @@ valgrind --tool=memcheck --leak-check=yes program.o
 
 ## Process vs. Threads
 
+Process is an instance of executing program. Each process must own a main thread. Threads can be created by process and are the tasks that need to be executed by cpu. Scheduler will assign threads to cpu cores to execute parallelly.
+
+## <pthread.h>
+
+`<pthread.h>` is a header file to use multithreads in POSIX system. A flag `-pthread` is used to compile source files that include `<pthread.h>`.
+
+```bash
+gcc -g -O0 -Wall <source>.c -o <output>.o -pthread
+```
+
+### Data type
+
+There are 4 commonly used data type about pthread:
+
+- pthread_t: Used to reference the thread after successful creation with pthread_create.
+- pthread_attr_t: Passed to pthread_create to specify thread attributes like detach state or stack size.
+- pthread_mutex_t: Ensures that only one thread can enter the critical section at any given time.
+- pthread_cond_t: Allows threads to sleep efficiently while waiting for a condition, avoiding busy waiting (polling).
+
+### pthread_t
