@@ -1484,3 +1484,14 @@ valgrind --tool=memcheck --leak-check=yes program.o
 - Other languages like Java implement garbage collectors to free unreferenced memory.
 
 # Lecture 12
+
+## Parallelism vs Concurrency
+
+- **Parallelism**: Capable of executing tasks concurrently across multiple hardware units.
+  - Instruction level (pipelining)
+  - Data parallelism (SIMD)
+  - Task parallelism (embarrassingly parallel)
+- **Concurrency**: Multiple tasks can be handled concurrently in software without necessarily requiring multiple hardware units.
+
+## Process vs. Threads
+
