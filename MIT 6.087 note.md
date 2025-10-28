@@ -2,14 +2,14 @@
 
 ## Evironment
 
-Platform: Windows Subsystem for Linux
-OS: Ubuntu 22.04.5 LTS
-Complier: gcc (version 11.4.0)
+Platform: Windows Subsystem for Linux  
+OS: Ubuntu 22.04.5 LTS  
+Complier: gcc (version 11.4.0)  
 Debugger: GNU gdb (version 12.1), valgrind (version 3.18.1)
 
-Platform: Mac
-OS: MacOS 15.6.1
-Complier: gcc (version 15.2.0)
+Platform: Mac  
+OS: MacOS 15.6.1  
+Complier: gcc (version 15.2.0)  
 Debugger: gdb (version 16.3)
 
 ## Comiple
@@ -1495,7 +1495,7 @@ valgrind --tool=memcheck --leak-check=yes program.o
 
 ## Process vs. Threads
 
-Process is an instance of executing program. Each process must own a main thread. Threads can be created by process and are the tasks that need to be executed by cpu. Scheduler will assign threads to cpu cores to execute parallelly.
+Process is an instance of executing program in its own address space. Each process must own a main thread. Threads can be created by process and share its address space with others. Scheduler will assign threads to cpu cores to execute parallelly.
 
 ## <pthread.h>
 
@@ -1625,8 +1625,262 @@ int pthread_cond_signal(pthread_cond_t* cond)
 
 # Lecture 13
 
+## Semaphores
 
+**Semaphore** – special nonnegative integer variable `s` which is used to control threads.
+  - `P(s)`: Wait until `s`>0, decrease `s` by 1 and return. The effect is similar to `pthread_cond_wait()`.
+  - `V(s)`: Increase `s` by 1, release shared resource. After `V` operation, another thread blocked by `P` operation will be awakened. The effect is similar to `pthread_cond_broadcast()`.
 
+The operation below are implemented in `<semaphore.h>`, part of library `rt`, not `pthread`.
 
+```C
+int sem_init(sem_t* sem, int pshared, unsigned int value)
+```
+
+- Initialize `sem_t` with `value` that represents the max number of concurrently executing threads.
+- The variable `pshared` equals 0 for intra-process communication and 1 for inter-process communication.
+
+```C
+int sem_destroy(sem_t* sem)
+```
+
+- Destry the `sem_t` instance.
+
+```C
+int sem_wait(sem_t* sem)
+```
+
+- Decrease the value of `sem` by 1.
+- Block the thread until the value of `sem` is larger than 0.
+
+```C
+int sem_trywait(sem_t* sem)
+```
+
+- Non-block version of `sem_wait`.
+- Immediately returns 0 if successfully locked, -1 otherwise.
+
+```C
+int sem_post(sem_t* sem)
+```
+
+- Increase the value of `sem` by 1.
+- Unlock occupied shared resources.
+
+## Multithread issue
+
+### Thread safety
+
+- Function is thread safe if it always behaves correctly when called from multiple concurrent threads.
+- Unsafe functions fall in several categories:
+  - accesses/modifies unsynchronized shared variables
+  - functions that maintain state using static variables – like `rand()`, `strtok()`
+  - functions that return pointers to static memory – like `gethostbyname()`
+
+**Reentrant function** – does not reference any shared data when used by multiple threads.
+  - All reentrant functions are thread-safe.
+  - Many unsafe C standard library functions have a reentrant version:
+    | Unsafe function | Reentrant function |
+    | --- | --- |
+    | `rand()` | `rand_r()` |
+    | `strtok()` | `strtok_r()` |
+    | `asctime()` | `asctime_r()` |
+    | `ctime()` | `ctime_r()` |
+    | `gethostbyaddr()` | `gethostbyaddr_r()` |
+    | `gethostbyname()` | `gethostbyname_r()` |
+    | `localtime()` | `localtime_r()` |
+
+### Deadlock
+
+- **Deadlock** – happens when every thread is waiting on another thread to unblock .
+- Usually caused by improper ordering of synchronization objects.
+- Tricky bug to locate and reproduce, since schedule-dependent.
+- Can visualize using a progress graph – traces progress of threads in terms of synchronization objects.
+
+### Starvation
+
+- Starvation similar to deadlock.
+- Scheduler never allocates resources (e.g. CPU time) for a thread to complete its task.
+- Happens during priority inversion.
+
+## Socket
+
+- **Socket** – abstraction to enable communication across a network in a manner similar to file I/O.
+- Uses header `<sys/socket.h>` (extension of C standard library).
+- Network I/O, due to latency, usually implemented asynchronously, using multithreading.
+- Sockets use client/server model of establishing connections.
+
+The socket function can be classified into three type:
+  - general function
+  - server-side function
+  - client-side function
+
+### General function
+
+```C
+int socket(int domain, int type, int protocol)
+```
+
+- used to create a socket
+- `domain` – use constant `AF_INET`, so we’re using the internet; might also use `AF_INET6` for IPv6 addresses
+- `type` – use constant `SOCK_STREAM` for connection-based protocols like TCP/IP; use `SOCK_DGRAM` for connectionless datagram protocols like UDP (we’ll concentrate on the former)
+- `protocol` – specify 0 to use default protocol for the socket type (e.g. TCP)
+- returns nonnegative integer for file descriptor, or −1 if couldn’t create socket
+
+```C
+int close(int fd)
+```
+
+- close the socket
+- release `fd` and resources occupied by the socket
+
+```C
+int read(int fd, void *buf, size_t count)
+int recv(int fd, void *buf, size_t count, int flags)
+int write(int fd, const void *buf, size_t count)
+int send(int fd, const void *buf, size_t count)
+```
+
+- receive/send data through the socket
+- `fd` – socket’s file descriptor
+- `buf` – buffer of data to read or write
+- `len` – length of buffer in bytes
+- `flags` – special flags; we’ll just use 0
+- returns the number of bytes read/written (if successful)
+
+### Server-side function
+
+```C
+int bind(int fd, struct sockaddr* addr, int addr_len)
+```
+
+- `fd`, `addr`, `addr_len` – same as for `connect()`
+- note that address should be IP address of desired interface (e.g. `eth0`) on local machine
+- ensure that port for server is not taken (or you may get “address already in use” errors)
+- return 0 if socket successfully bound to port
+
+```C
+int listen(int fd, int backlog)
+```
+
+- `fd` – bound socket file descriptor
+- `backlog` – length of queue for pending TCP/IP connections; normally set to a large number, like 1024
+- returns 0 if successful
+
+```C
+int accept(int fd, struct sockaddr* addr, int* addr_len)
+```
+
+- wait for a client’s connection request (may already be queued)
+- `fd` – socket’s file descriptor
+- `addr` – pointer to structure to be filled with client address info (can be `NULL`)
+- `addr_len` – pointer to `int` that specifies length of structure pointed to by `addr`; on output, specifies the length of the stored address (stored address may be truncated if bigger than supplied structure)
+- returns (nonnegative) file descriptor for connected client socket if successful 
+
+### Client-side function
+
+```C
+int connect(int fd, struct sockaddr* addr, int addr_len)
+```
+
+- `fd` – the socket’s file descriptor
+- `addr` – the address and port of the server to connect to; for internet addresses, cast data of type `struct sockaddr_in`, which has the following members:
+  - `sin_family` – address family; always `AF_INET`
+  - `sin_port` – port in network byte order (use `htons()` to convert to network byte order)
+  - `sin_addr.s_addr` – IP address in network byte order (use `htonl()` to convert to network byte order)
+- `addr_len` – size of sockaddr_in structure
+- returns 0 if successful
+
+### Process of TCP connection
+
+To clarify, the process of TCP connection is below:
+  1. server calls `socket()` (linstening `fd`) -> `bind()` -> `listen()` (start waiting)
+  2. client calls `socket()`
+  3. client calls `connect()`
+  4. server calls `accept()`
+    - `accept()` accepts the connection and creat a new socket (connect `fd`)
+    - `accept()` returns the new connect `fd` to server
+  5. to communicate, client uses its own `fd` and server uses the new `fd` returned by `accept()` 
+
+## Asynchronous I/O
+
+Synchronous I/O is often blocked by communication latency. There are to ways to get rid of such condition:
+  - Multithreading – put I/O functions in a separate thread. For server that contains mass connection, the cost of Multithreading is too big.
+  - Multiplexed – a single thread can manage multiple `fd` by `select()` or `poll()`.
+
+```C
+#include <sys/select.h>
+int select(int nfds, fd_set* readfds, fd_set* writefds, fd_set* errorfds, struct timeval* timeout)
+```
+
+- to check if multiple files/sockets have data to read/write
+- `nfds` – specifies the total range of file descriptors to be tested
+- `readfds`, `writefds`, `errorfds` – if not NULL, pointer to set of file descriptors to be tested for being ready to read, write, or having an error; on output, set will contain a list of only those file descriptors that are ready
+- timeout – if no file descriptors are ready immediately, maximum time to wait for a file descriptor to be ready
+- fd_set – a mask for file descriptors; bits are set ("1") if in the set, or unset ("0") otherwise
+- Use the following functions to set up the structure:
+  ```C
+  FD_ZERO(&fdset)
+  FD_SET(fd, &fdset)
+  FD_CLR(fd, &fdset)
+  FD_ISSET(fd, &fdset)
+  ```
+
+```C
+#include <poll.h>
+int poll(struct pollfd fds[], nfds_t nfds, int timeout)
+```
+
+- similar to `select()`, but specifies file descriptors differently
+- `fds` – an array of `pollfd` structures, whose members `fd`, `events`, and `revents`, are the file descriptor, events to check (OR-ed combination of flags like POLLIN, POLLOUT, POLLERR, POLLHUP), and result of polling with that file descriptor for those events, respectively
+- `nfds` – number of structures in the array
+- `timeout` – number of milliseconds to wait; use 0 to return immediately, or −1 to block indefinitely
 
 # Lecture 14
+
+- Each process has its own address space. Therefore, individual processes cannot communicate unlike threads.
+- Interprocess communication: Linux/Unix provides several ways to allow communications:
+  - signal
+  - pipes
+  - FIFO queues
+  - shared memory
+  - semaphores
+  - sockets
+
+## Signal
+
+The sender of a signal can be OS or a process. A process can send signal by `raise()`.
+
+```C
+int raise(int sig)
+```
+
+- there can be race conditions
+- handler itself can be interrupted
+- handler is **reset** each time it is called
+
+There are several types of signal in Unix system:
+- Keyboard input
+  - SIGINT (ineterrupt): from keyboard Ctrl-C
+  - SIGQUIT (quit): from keyboard Ctrl-\
+  - SIGTSTP (terminal stop): from keyboard Ctrl-Z, used for pausing process
+- Hardware errors
+  - SIGSEGV (segmentation violation): attempt to access invalid address
+  - SIGFPE (floating point exception): error on executing float calculation
+- Software events
+  - SIGKILL (kill): send from a process to forcefully terminate the target program
+  - SIGCHLD (chid stopped/terminated): parent process will receive this signal when child process is stopped or terminated
+  - SIGALRM (alarm): when a process's timer expires, the operating system sends this signal
+
+The receiver of a signal is a process. The handler of siganl can be change to a function by `signal()`.
+
+```C
+void (*signal(int sig, (*handler)(int)))(int)
+```
+
+- the function name is `signal`
+- `signal()` accept two parameter:
+  - `sig` is the `int` that represents signal like SIGINT, SIGQUIT, etc. There are pre-defined macros `SIGINT`, `SIGQUIT` can be used as `int`
+  - `handler` is the function to replace the default behavior
+- returns the previous handler
+- `SIGSTOP`, `SIGKILL` can not be handled
