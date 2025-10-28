@@ -1884,3 +1884,78 @@ void (*signal(int sig, (*handler)(int)))(int)
   - `handler` is the function to replace the default behavior
 - returns the previous handler
 - `SIGSTOP`, `SIGKILL` can not be handled
+
+## Fork
+
+```C
+pid_t fork(void)
+```
+
+- `fork()` is a system call to create a new process
+- makes a full copy of the parent adress space
+- In the child process, it returns 0
+- In the parent process, it returns the PID of the child
+- The child PID can be used to send signals to the child process
+- returns -1 on failure
+
+```C
+pid_t getpid()
+```
+
+- returns PID of the current process
+
+```C
+pid_t getppid()
+```
+
+- returns PID of the parent process
+
+When the child process finishs before the parent process, it becomes a zombie process. A zombie process release most of resouces but still remain in process table. `wait()` can block the parent the parent process and wait for the child process. Once the child process finished, the parent will collect the exit status and completely release the resources occupied by the child.
+
+```C
+pid_t wait(int *status)
+```
+
+- used to wait for the child to finish
+- will block the parent process
+- collect the status of finished child process and delete its PID from process table
+
+```C
+pid_t waitpid(pid_t pid, int *status, int options)
+```
+
+- similar to `wait()`
+- used to wait for a specific child
+- can use `WNOHANG` to avoid blocking the parent process
+
+## Pipe
+
+Pipes in Unix are used to redirect the output of one command so that it becomes the input of another command. In the Unix terminal, `|` symbol is pipe operator.
+
+```bash
+ls | more
+cat file.txt | sort
+```
+
+In C language, use `pipe()` to achieve inter-process communication.
+
+```C
+int pipe(int FILEDES[2])
+```
+
+- the input is a pair of file descriptors
+  - `FILEDES[0]`: reading side of pipe
+  - `FILEDES[1]`: writing side of pipe
+- no physical file is associated with the file descriptor
+
+## FIFO
+
+FIFO queues may be thought of as named pipes. Multiple **unrelated** processes can read and write from a FIFO. A function `mknod()` is declared in `<sys/stat.h>`.
+
+```C
+int mknod(const char *path, mode_t mode, dev_t dev)
+```
+
+- `path`: the name of FIFO in file system
+- `mode`: determine the type and permissions of FIFO
+- `dev`: device number, usually set to 0 for FIFO
