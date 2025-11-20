@@ -18,6 +18,23 @@ class Part_B_Node(BST_Node):
         #########################################
         # ADD ANY NEW SUBTREE AUGMENTATION HERE #
         #########################################
+        A.sum = A.item.val
+        if A.left: A.sum += A.left.sum
+        if A.right: A.sum += A.right.sum
+
+        mid = A.item.val
+        left = -float('inf')
+        right = -float('inf')
+
+        if A.left: 
+            left = A.left.max_prefix
+            mid += A.left.sum
+        if A.right: 
+            right = mid + A.right.max_prefix
+        A.max_prefix = max(mid,right,left)
+        if A.max_prefix == mid: A.max_prefix_key = A.item.key
+        elif A.max_prefix == right: A.max_prefix_key = A.right.max_prefix_key
+        else: A.max_prefix_key = A.left.max_prefix_key
 
 class Part_B_Tree(Set_AVL_Tree):
     def __init__(self): 
@@ -32,6 +49,9 @@ class Part_B_Tree(Set_AVL_Tree):
         ##################
         # YOUR CODE HERE #
         ##################
+        k = self.root.max_prefix_key
+        s = self.root.max_prefix
+        
         return (k, s)
 
 def tastiest_slice(toppings):
@@ -46,4 +66,10 @@ def tastiest_slice(toppings):
     ##################
     # YOUR CODE HERE #
     ##################
+    toppings.sort(key = lambda topping: topping[0])
+    for (x,y,t) in toppings:
+        B.insert(Key_Val_Item(y,t))
+        (Y_,T_) = B.max_prefix()
+        if T<T_:
+            X,Y,T = x,Y_,T_
     return (X, Y, T)
