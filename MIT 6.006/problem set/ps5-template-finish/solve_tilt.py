@@ -8,6 +8,26 @@ def solve_tilt(B, t):
     ##################
     # YOUR CODE HERE #
     ##################
+    record = {B:None}
+    levels = [[B]]
+    xt,yt = t
+    while levels[-1]:
+        next_level = []
+        for B1 in levels[-1]:
+            for d in ('up','down','left','right'):
+                B2 = move(B1,d)
+                if B2 not in record:
+                    record[B2] = (B1,d)
+                    if B2[yt][xt] == 'o':
+                        while record[B2]:
+                            B2,d=record[B2]
+                            M.append(d)
+                        M.reverse()
+                        return M
+                    next_level.append(B2)
+        levels.append(next_level)
+    M = []
+
     return M
 
 ####################################
